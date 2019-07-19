@@ -7,9 +7,6 @@
 #include "easyweb.h"
 #include "lpc177x_8x_timer.h"
 
-FATFS	fat;
-FIL		file;
-const char *filename = "test.txt";
 
 DWORD get_fattime(void)
 {
@@ -30,8 +27,13 @@ DWORD get_fattime(void)
 
 void Test_SDCard(void)
 {	
+	const char *filename = "test.txt";
+
 	if (SDCard_disk_initialize() == 0)
 	{
+		FATFS fat;
+		FIL file;
+
 		f_mount(0, &fat);
 		int r = f_open(&file, filename, FA_READ);
 		if (r == FR_OK)
@@ -39,7 +41,7 @@ void Test_SDCard(void)
 			printf("Read %s file...\r\n", filename);
 			uint8_t buf[512];
 			unsigned int r = sizeof(buf);
-
+			
 			if (f_read(&file, buf, sizeof(buf), &r) == FR_OK)
 			{
 				printf("%s\r\n", buf);
@@ -72,17 +74,22 @@ void Test_Motor(void)
 int main(void)
 {
 	LED_Init();
+
 	Uart_Init();
-	Motor_Init();
-	SDCard_Init();
-	USB_Message_Connect();
-	Easy_Web_Init();
-	
 	printf("Smoothie Tester!\r\n");
-	
+
+	printf("Test SD card\r\n");
+	SDCard_Init();
 	Test_SDCard();
-	Test_Motor();
+	Easy_Web_Init();
+
+	printf("Test USB\r\n");
+	USB_Message_Connect();
 	
+	printf("Test Motor\r\n");
+	Motor_Init();
+	Test_Motor();
+
 	while(1)
 	{
 		Easy_Web_Execute();
