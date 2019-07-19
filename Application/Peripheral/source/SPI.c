@@ -4,6 +4,9 @@
 #include "lpc177x_8x_pinsel.h"
 #include "lpc177x_8x_gpio.h"
 
+#define SD_SPI_ID     1
+#define MOTOR_SPI_ID  0
+
 #if (SD_SPI_ID == 0)
 #define SD_SSP	LPC_SSP0
 #elif (SD_SPI_ID == 1)
@@ -59,6 +62,10 @@ void SD_SPI_Init(void)
 	PINSEL_ConfigPin(PORT(SD_SPI_SCLK), PIN(SD_SPI_SCLK), SD_SPI_SCLK_FUNC);
 	PINSEL_ConfigPin(PORT(SD_SPI_MISO), PIN(SD_SPI_MISO), SD_SPI_MISO_FUNC);
 	PINSEL_ConfigPin(PORT(SD_SPI_MOSI), PIN(SD_SPI_MOSI), SD_SPI_MOSI_FUNC);
+	
+	PINSEL_SetFilter(PORT(SD_SPI_SCLK), PIN(SD_SPI_SCLK), 0);
+	PINSEL_SetFilter(PORT(SD_SPI_MISO), PIN(SD_SPI_MISO), 0);
+	PINSEL_SetFilter(PORT(SD_SPI_MOSI), PIN(SD_SPI_MOSI), 0);
 	
 	SPI_Init(SD_SSP);
 }

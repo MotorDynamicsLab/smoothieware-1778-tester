@@ -118,20 +118,20 @@ uint32_t busy_buffers;
 ///SD card init
 void SDCard_Init(void)
 {
-	GPIO_SetDir(PORT(SD_SPI_CS), PIN(SD_SPI_CS), GPIO_DIRECTION_OUTPUT);
-	GPIO_OutputValue(PORT(SD_SPI_CS), PIN(SD_SPI_CS), 1);
+	GPIO_SetDir(PORT(SD_SPI_CS), PINMask(SD_SPI_CS), GPIO_DIRECTION_OUTPUT);
+	GPIO_OutputValue(PORT(SD_SPI_CS), PINMask(SD_SPI_CS), 1);
 	
 	SD_SPI_Init();
 }
 
 static inline void SD_SPI_CS_SET(void)
 {
-	GPIO_OutputValue(PORT(SD_SPI_CS), PIN(SD_SPI_CS), 1);
+	GPIO_OutputValue(PORT(SD_SPI_CS), PINMask(SD_SPI_CS), 1);
 }
 
 static inline void SD_SPI_CS_CLEAR(void)
 {
-	GPIO_OutputValue(PORT(SD_SPI_CS), PIN(SD_SPI_CS), 0);
+	GPIO_OutputValue(PORT(SD_SPI_CS), PINMask(SD_SPI_CS), 0);
 }
 
 int SDCard_initialise_card()
