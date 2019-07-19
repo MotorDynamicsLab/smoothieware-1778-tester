@@ -75,5 +75,6 @@ typedef enum {
 
 #define PORT(p) (((p) >> 5) & 7)
 #define PIN(p)  ((p) & 0x1F)
+#define PINMask(p) (1 << PIN(p))
 
 #endif
