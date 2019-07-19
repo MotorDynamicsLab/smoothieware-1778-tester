@@ -30,6 +30,8 @@
 #include "lpc177x_8x_timer.h"
 #include "lpc177x_8x_pinsel.h"
 
+#include "SDCard.h"
+#include "ff.h"
 
 /** @defgroup EMAC_EasyWeb  EMAC Easy Web
  * @ingroup EMAC_Examples
@@ -117,14 +119,46 @@ void Easy_Web_Init(void)
  **********************************************************************/
 void Easy_Web_Execute(void)
 {
-		if (!(SocketStatus & SOCK_ACTIVE))
-				TCPPassiveOpen();                      // listen for incoming TCP-connection
-				
-		DoNetworkStuff();                          // handle network and easyWEB-stack
-																							 // events
-		HTTPServer();
+	// listen for incoming TCP-connection
+	if (!(SocketStatus & SOCK_ACTIVE))
+		TCPPassiveOpen();
+
+	// handle network and easyWEB-stack			
+	DoNetworkStuff();
+	
+	// events
+	HTTPServer();
 }
 
+/*********************************************************************//**
+ * @brief       Easy web execute
+ * @param[in]   None
+ * @return      result
+ **********************************************************************/
+uint8_t EasyWeb_Read_WebPage(void)
+{
+	if (SDCard_disk_initialize() == 0)
+	{
+		FATFS fat;
+		FIL file;
+
+		f_mount(0, &fat);
+		int r = f_open(&file, "index.html", FA_READ);
+		if (r == FR_OK)
+		{
+			//get HTML length, ignore trailing zero
+			HTTPBytesToSend = file.fsize;
+			//malloc webside
+			PWebSide = (unsigned char *)malloc(file.fsize);
+			//read webside
+			unsigned int r = file.fsize;
+			f_read(&file, PWebSide, file.fsize, &r);
+			f_close(&file);
+			return 1;
+		}
+	}
+	return 0;
+}
 
 // This function implements a very simple dynamic HTTP-server.
 // It waits until connected, then sends a HTTP-header and the
@@ -149,8 +183,11 @@ void HTTPServer(void)
     {
       if (!(HTTPStatus & HTTP_SEND_PAGE))        // init byte-counter and pointer to webside
       {                                          // if called the 1st time
-        HTTPBytesToSend = sizeof(WebSide) - 1;   // get HTML length, ignore trailing zero
-        PWebSide = (uint8_t *)WebSide;     // pointer to HTML-code
+		  if (EasyWeb_Read_WebPage() == 0)
+		  {
+			  HTTPBytesToSend = sizeof(WebSide) - 1; // get HTML length, ignore trailing zero
+			  PWebSide = (uint8_t *)WebSide;         // pointer to HTML-code
+		  }
       }
 
       if (HTTPBytesToSend > MAX_TCP_TX_DATA_SIZE)     // transmit a segment of MAX_SIZE
