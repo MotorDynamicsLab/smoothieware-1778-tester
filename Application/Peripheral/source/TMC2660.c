@@ -42,7 +42,7 @@
 #define HYSTERESIS_START_VALUE_PATTERN      0x00078ul
 #define HYSTERESIS_START_VALUE_SHIFT        4
 #define T_OFF_TIMING_PATERN                 0x0000Ful
-                                            
+
 //definitions for cool step register        
 #define MINIMUM_CURRENT_FOURTH              0x8000ul
 #define CURRENT_DOWN_STEP_SPEED_PATTERN     0x6000ul
@@ -97,7 +97,7 @@ void TMC2660_Init(void)
 		GPIO_SetDir(PORT(tmc2660CS[i]), PIN(tmc2660CS[i]), GPIO_DIRECTION_OUTPUT);
 		GPIO_OutputValue(PORT(tmc2660CS[i]), PIN(tmc2660CS[i]), 1);
 	}
-	
+
 	Motor_SPI_Init();
 	TMC2660_Configure();
 }
@@ -140,137 +140,151 @@ void TMC2660_DefaultConf(uint8_t num)
 ///TMC2660 set constant off time chopper
 void TMC2660_SetConstantOffTimeChopper(uint8_t num, int8_t constant_off_time, int8_t blank_time, int8_t fast_decay_time_setting, int8_t sine_wave_offset, uint8_t use_current_comparator)
 {
-    //perform some sanity checks
-    if (constant_off_time < 2) {
-        constant_off_time = 2;
-    } else if (constant_off_time > 15) {
-        constant_off_time = 15;
-    }
+	//perform some sanity checks
+	if (constant_off_time < 2) {
+		constant_off_time = 2;
+	}
+	else if (constant_off_time > 15) {
+		constant_off_time = 15;
+	}
 
-    int8_t blank_value;
-    //calculate the value acc to the clock cycles
-    if (blank_time >= 54) {
-        blank_value = 3;
-    } else if (blank_time >= 36) {
-        blank_value = 2;
-    } else if (blank_time >= 24) {
-        blank_value = 1;
-    } else {
-        blank_value = 0;
-    }
+	int8_t blank_value;
+	//calculate the value acc to the clock cycles
+	if (blank_time >= 54) {
+		blank_value = 3;
+	}
+	else if (blank_time >= 36) {
+		blank_value = 2;
+	}
+	else if (blank_time >= 24) {
+		blank_value = 1;
+	}
+	else {
+		blank_value = 0;
+	}
 
-    if (fast_decay_time_setting < 0) {
-        fast_decay_time_setting = 0;
-    } else if (fast_decay_time_setting > 15) {
-        fast_decay_time_setting = 15;
-    }
-    if (sine_wave_offset < -3) {
-        sine_wave_offset = -3;
-    } else if (sine_wave_offset > 12) {
-        sine_wave_offset = 12;
-    }
-    //shift the sine_wave_offset
-    sine_wave_offset += 3;
+	if (fast_decay_time_setting < 0) {
+		fast_decay_time_setting = 0;
+	}
+	else if (fast_decay_time_setting > 15) {
+		fast_decay_time_setting = 15;
+	}
+	if (sine_wave_offset < -3) {
+		sine_wave_offset = -3;
+	}
+	else if (sine_wave_offset > 12) {
+		sine_wave_offset = 12;
+	}
+	//shift the sine_wave_offset
+	sine_wave_offset += 3;
 
-    //calculate the register setting
-    //first of all delete all the values for this
-    chopper_config_register &= ~((1 << 12) | BLANK_TIMING_PATTERN | HYSTERESIS_DECREMENT_PATTERN | HYSTERESIS_LOW_VALUE_PATTERN | HYSTERESIS_START_VALUE_PATTERN | T_OFF_TIMING_PATERN);
-    //set the constant off pattern
-    chopper_config_register |= CHOPPER_MODE_T_OFF_FAST_DECAY;
-    //set the blank timing value
-    chopper_config_register |= ((unsigned long)blank_value) << BLANK_TIMING_SHIFT;
-    //setting the constant off time
-    chopper_config_register |= constant_off_time;
-    //set the fast decay time
-    //set msb
-    chopper_config_register |= (((unsigned long)(fast_decay_time_setting & 0x8)) << HYSTERESIS_DECREMENT_SHIFT);
-    //other bits
-    chopper_config_register |= (((unsigned long)(fast_decay_time_setting & 0x7)) << HYSTERESIS_START_VALUE_SHIFT);
-    //set the sine wave offset
-    chopper_config_register |= (unsigned long)sine_wave_offset << HYSTERESIS_LOW_SHIFT;
-    //using the current comparator?
-    if (!use_current_comparator) {
-        chopper_config_register |= (1 << 12);
-    }
-    //if started we directly send it to the motor
-    TMC2660_Write(num, chopper_config_register);
+	//calculate the register setting
+	//first of all delete all the values for this
+	chopper_config_register &= ~((1 << 12) | BLANK_TIMING_PATTERN | HYSTERESIS_DECREMENT_PATTERN | HYSTERESIS_LOW_VALUE_PATTERN | HYSTERESIS_START_VALUE_PATTERN | T_OFF_TIMING_PATERN);
+	//set the constant off pattern
+	chopper_config_register |= CHOPPER_MODE_T_OFF_FAST_DECAY;
+	//set the blank timing value
+	chopper_config_register |= ((unsigned long)blank_value) << BLANK_TIMING_SHIFT;
+	//setting the constant off time
+	chopper_config_register |= constant_off_time;
+	//set the fast decay time
+	//set msb
+	chopper_config_register |= (((unsigned long)(fast_decay_time_setting & 0x8)) << HYSTERESIS_DECREMENT_SHIFT);
+	//other bits
+	chopper_config_register |= (((unsigned long)(fast_decay_time_setting & 0x7)) << HYSTERESIS_START_VALUE_SHIFT);
+	//set the sine wave offset
+	chopper_config_register |= (unsigned long)sine_wave_offset << HYSTERESIS_LOW_SHIFT;
+	//using the current comparator?
+	if (!use_current_comparator) {
+		chopper_config_register |= (1 << 12);
+	}
+	//if started we directly send it to the motor
+	TMC2660_Write(num, chopper_config_register);
 }
 
 
 ///TMC2660 set microstep
 void TMC2660_SetMicrostep(uint8_t num, uint16_t microstep)
 {
-		long setting_pattern;
-	
-    //poor mans log
-    if (microstep >= 256) {
-        setting_pattern = 0;
-    } else if (microstep >= 128) {
-        setting_pattern = 1;
-    } else if (microstep >= 64) {
-        setting_pattern = 2;
-    } else if (microstep >= 32) {
-        setting_pattern = 3;
-    } else if (microstep >= 16) {
-        setting_pattern = 4;
-    } else if (microstep >= 8) {
-        setting_pattern = 5;
-    } else if (microstep >= 4) {
-        setting_pattern = 6;
-    } else if (microstep >= 2) {
-        setting_pattern = 7;
-        //1 and 0 lead to full step
-    } else if (microstep <= 1) {
-        setting_pattern = 8;
-    }
+	long setting_pattern;
 
-    //delete the old value
-    driver_control_register_value &= 0xFFFF0ul;
-    //set the new value
-    driver_control_register_value |= setting_pattern;
-    //if started we directly send it to the motor
-		TMC2660_Write(num, driver_control_register_value);
+	//poor mans log
+	if (microstep >= 256) {
+		setting_pattern = 0;
+	}
+	else if (microstep >= 128) {
+		setting_pattern = 1;
+	}
+	else if (microstep >= 64) {
+		setting_pattern = 2;
+	}
+	else if (microstep >= 32) {
+		setting_pattern = 3;
+	}
+	else if (microstep >= 16) {
+		setting_pattern = 4;
+	}
+	else if (microstep >= 8) {
+		setting_pattern = 5;
+	}
+	else if (microstep >= 4) {
+		setting_pattern = 6;
+	}
+	else if (microstep >= 2) {
+		setting_pattern = 7;
+		//1 and 0 lead to full step
+	}
+	else if (microstep <= 1) {
+		setting_pattern = 8;
+	}
+
+	//delete the old value
+	driver_control_register_value &= 0xFFFF0ul;
+	//set the new value
+	driver_control_register_value |= setting_pattern;
+	//if started we directly send it to the motor
+	TMC2660_Write(num, driver_control_register_value);
 }
 
 
 ///TMC2660 set current
 void TMC2660_SetCurrent(uint8_t num, uint16_t current)
 {
-		//current sense resitor value in milliohm
-	  unsigned int resistor = 50; 
-	
-    uint8_t current_scaling = 0;
-    //calculate the current scaling from the max current setting (in mA)
-    double mASetting = (double)current;
-    double resistor_value = (double)resistor;
-    // remove vesense flag
-    driver_configuration_register_value &= ~(VSENSE);
-    //this is derrived from I=(cs+1)/32*(Vsense/Rsense)
-    //leading to cs = CS = 32*R*I/V (with V = 0,31V oder 0,165V  and I = 1000*current)
-    //with Rsense=0,15
-    //for vsense = 0,310V (VSENSE not set)
-    //or vsense = 0,165V (VSENSE set)
-    current_scaling = (uint8_t)((resistor_value * mASetting * 32.0F / (0.31F * 1000.0F * 1000.0F)) - 0.5F); //theoretically - 1.0 for better rounding it is 0.5
+	//current sense resitor value in milliohm
+	unsigned int resistor = 50;
 
-    //check if the current scaling is too low
-    if (current_scaling < 16) {
-        //set the csense bit to get a use half the sense voltage (to support lower motor currents)
-        driver_configuration_register_value |= VSENSE;
-        //and recalculate the current setting
-        current_scaling = (uint8_t)((resistor_value * mASetting * 32.0F / (0.165F * 1000.0F * 1000.0F)) - 0.5F); //theoretically - 1.0 for better rounding it is 0.5
-    }
+	uint8_t current_scaling = 0;
+	//calculate the current scaling from the max current setting (in mA)
+	double mASetting = (double)current;
+	double resistor_value = (double)resistor;
+	// remove vesense flag
+	driver_configuration_register_value &= ~(VSENSE);
+	//this is derrived from I=(cs+1)/32*(Vsense/Rsense)
+	//leading to cs = CS = 32*R*I/V (with V = 0,31V oder 0,165V  and I = 1000*current)
+	//with Rsense=0,15
+	//for vsense = 0,310V (VSENSE not set)
+	//or vsense = 0,165V (VSENSE set)
+	current_scaling = (uint8_t)((resistor_value * mASetting * 32.0F / (0.31F * 1000.0F * 1000.0F)) - 0.5F); //theoretically - 1.0 for better rounding it is 0.5
 
-    //do some sanity checks
-    if (current_scaling > 31) {
-        current_scaling = 31;
-    }
-    //delete the old value
-    stall_guard2_current_register_value &= ~(CURRENT_SCALING_PATTERN);
-    //set the new current scaling
-    stall_guard2_current_register_value |= current_scaling;
-    //if started we directly send it to the motor
-		TMC2660_Write(num, driver_configuration_register_value);
-		TMC2660_Write(num, stall_guard2_current_register_value);
+	//check if the current scaling is too low
+	if (current_scaling < 16) {
+		//set the csense bit to get a use half the sense voltage (to support lower motor currents)
+		driver_configuration_register_value |= VSENSE;
+		//and recalculate the current setting
+		current_scaling = (uint8_t)((resistor_value * mASetting * 32.0F / (0.165F * 1000.0F * 1000.0F)) - 0.5F); //theoretically - 1.0 for better rounding it is 0.5
+	}
+
+	//do some sanity checks
+	if (current_scaling > 31) {
+		current_scaling = 31;
+	}
+	//delete the old value
+	stall_guard2_current_register_value &= ~(CURRENT_SCALING_PATTERN);
+	//set the new current scaling
+	stall_guard2_current_register_value |= current_scaling;
+	//if started we directly send it to the motor
+	TMC2660_Write(num, driver_configuration_register_value);
+	TMC2660_Write(num, stall_guard2_current_register_value);
 }
 
 
@@ -293,7 +307,7 @@ void TMC2660_Disable(uint8_t num)
 {
 	//delete the t_off in the chopper config to get sure
 	chopper_config_register &= ~(T_OFF_PATTERN);
-	
+
 	//if not enabled we don't have to do anything since we already delete t_off from the register
 	TMC2660_Write(num, chopper_config_register);
 }
@@ -303,17 +317,17 @@ void TMC2660_Disable(uint8_t num)
 uint32_t TMC2660_Write(uint8_t num, uint32_t datagram)
 {
 	GPIO_OutputValue(PORT(tmc2660CS[num]), PIN(tmc2660CS[num]), 0);
-	
-	uint8_t tbuf[3] = {(uint8_t)(datagram >> 16), (uint8_t)(datagram >>  8), (uint8_t)(datagram & 0xff)};
-  uint8_t rbuf[3] = { 0 };
-	
+
+	uint8_t tbuf[3] = { (uint8_t)(datagram >> 16), (uint8_t)(datagram >> 8), (uint8_t)(datagram & 0xff) };
+	uint8_t rbuf[3] = { 0 };
+
 	rbuf[0] = Motor_SPI_WriteAndRead(tbuf[0]);
 	rbuf[1] = Motor_SPI_WriteAndRead(tbuf[1]);
 	rbuf[2] = Motor_SPI_WriteAndRead(tbuf[2]);
-	
+
 	uint32_t driverStatus = ((rbuf[0] << 16) | (rbuf[1] << 8) | (rbuf[2])) >> 4;
-	
+
 	GPIO_OutputValue(PORT(tmc2660CS[num]), PIN(tmc2660CS[num]), 1);
-	
+
 	return driverStatus;
 }
