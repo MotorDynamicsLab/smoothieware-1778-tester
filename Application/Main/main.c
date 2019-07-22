@@ -6,7 +6,9 @@
 #include "memory.h"
 #include "easyweb.h"
 #include "lpc177x_8x_timer.h"
+#include "system_LPC177x_8x.h"
 
+FATFS fat;
 
 DWORD get_fattime(void)
 {
@@ -25,31 +27,16 @@ DWORD get_fattime(void)
 }
 
 
-void Test_SDCard(void)
+void Test_SDCard_Ethernet(void)
 {	
-	const char *filename = "test.txt";
-
+	//Test sd card
 	if (SDCard_disk_initialize() == 0)
 	{
-		FATFS fat;
-		FIL file;
-
 		f_mount(0, &fat);
-		int r = f_open(&file, filename, FA_READ);
-		if (r == FR_OK)
-		{
-			printf("Read %s file...\r\n", filename);
-			uint8_t buf[512];
-			unsigned int r = sizeof(buf);
-			
-			if (f_read(&file, buf, sizeof(buf), &r) == FR_OK)
-			{
-				printf("%s\r\n", buf);
-			}
-			
-			f_close(&file);
-		}
 	}
+
+	//Test Ethernet 
+	Easy_Web_Init();
 }
 
 
@@ -59,39 +46,54 @@ void Test_Motor(void)
 	
 	Motor_Forward();
 	Motor_Start();
-	TIM_Waitms(5000);
+	TIM_Waitms(2000);
 	Motor_Stop();
 	TIM_Waitms(1000);
 	Motor_Reverse();
 	Motor_Start();
-	TIM_Waitms(5000);
+	TIM_Waitms(2000);
 	Motor_Stop();
 	
 	Motor_Disable();
 }
 
 
+void Test_Led(void)
+{
+	static uint16_t cnt = 0;
+	uint8_t state = (cnt++ & 0x1000) ? 1 : 0;
+	
+	for (uint8_t i = 0; i < 6; i++)
+	{
+		LED_Set(i, state);
+	}
+}
+
+
 int main(void)
 {
+	Uart_Init();
+	printf("Smoothie Tester@%dHz\r\n", SystemCoreClock);
+		
 	LED_Init();
 
-	Uart_Init();
-	printf("Smoothie Tester!\r\n");
-
-	printf("Test SD card\r\n");
+	printf("Test SD card and ethernet\r\n");
 	SDCard_Init();
-	Test_SDCard();
-	Easy_Web_Init();
+	Test_SDCard_Ethernet();
 
 	printf("Test USB\r\n");
 	USB_Message_Connect();
 	
 	printf("Test Motor\r\n");
 	Motor_Init();
-	Test_Motor();
+	Motor_Enable();
+	Motor_Forward();
+	Motor_Start();
 
 	while(1)
 	{
+		Test_Led();
 		Easy_Web_Execute();
 	}
 }
+
