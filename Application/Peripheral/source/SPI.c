@@ -20,21 +20,6 @@
 #endif
 
 
-///SPI initialize
-static inline void SPI_Init(LPC_SSP_TypeDef *SSPx)
-{
-	// SSP Configuration structure variable
-	SSP_CFG_Type SSP_ConfigStruct;
-	// initialize SSP configuration structure to default
-	SSP_ConfigStructInit(&SSP_ConfigStruct);
-	// SSP_ConfigStruct.ClockRate = 1000000;
-	// Initialize SSP peripheral with parameter given in structure above
-	SSP_Init(SSPx, &SSP_ConfigStruct);
-	// Enable SSP peripheral
-	SSP_Cmd(SSPx, ENABLE);
-}
-
-
 ///SD card SPI write and read one byte data
 static inline uint8_t SPI_WriteAndRead(LPC_SSP_TypeDef *SSPx, uint8_t data)
 {
@@ -59,6 +44,7 @@ static inline uint8_t SPI_WriteAndRead(LPC_SSP_TypeDef *SSPx, uint8_t data)
 ///SD card SPI initialize
 void SD_SPI_Init(void)
 {
+	//Configure pins
 	PINSEL_ConfigPin(PORT(SD_SPI_SCLK), PIN(SD_SPI_SCLK), SD_SPI_SCLK_FUNC);
 	PINSEL_ConfigPin(PORT(SD_SPI_MISO), PIN(SD_SPI_MISO), SD_SPI_MISO_FUNC);
 	PINSEL_ConfigPin(PORT(SD_SPI_MOSI), PIN(SD_SPI_MOSI), SD_SPI_MOSI_FUNC);
@@ -66,8 +52,16 @@ void SD_SPI_Init(void)
 	PINSEL_SetFilter(PORT(SD_SPI_SCLK), PIN(SD_SPI_SCLK), 0);
 	PINSEL_SetFilter(PORT(SD_SPI_MISO), PIN(SD_SPI_MISO), 0);
 	PINSEL_SetFilter(PORT(SD_SPI_MOSI), PIN(SD_SPI_MOSI), 0);
-	
-	SPI_Init(SD_SSP);
+
+	// SSP Configuration structure variable
+	SSP_CFG_Type SSP_ConfigStruct;
+	// initialize SSP configuration structure to default
+	SSP_ConfigStructInit(&SSP_ConfigStruct);
+	// SSP_ConfigStruct.ClockRate = 1000000;
+	// Initialize SSP peripheral with parameter given in structure above
+	SSP_Init(SD_SSP, &SSP_ConfigStruct);
+	// Enable SD_SSP peripheral
+	SSP_Cmd(SD_SSP, ENABLE);
 }
 
 
@@ -81,11 +75,22 @@ uint8_t SD_SPI_WriteAndRead(uint8_t data)
 ///Motor SPI initialize
 void Motor_SPI_Init(void)
 {
+	//Configure pins
 	PINSEL_ConfigPin(PORT(MOTOR_SPI_SCLK), PIN(MOTOR_SPI_SCLK), MOTOR_SPI_SCLK_FUNC);
 	PINSEL_ConfigPin(PORT(MOTOR_SPI_MISO), PIN(MOTOR_SPI_MISO), MOTOR_SPI_MISO_FUNC);
 	PINSEL_ConfigPin(PORT(MOTOR_SPI_MOSI), PIN(MOTOR_SPI_MOSI), MOTOR_SPI_MOSI_FUNC);
 	
-	SPI_Init(MOTOR_SSP);
+	// SSP Configuration structure variable
+	SSP_CFG_Type SSP_ConfigStruct;
+	// initialize SSP configuration structure to default
+	SSP_ConfigStructInit(&SSP_ConfigStruct);
+	//SSP_ConfigStruct.ClockRate = 1000000;
+	SSP_ConfigStruct.CPHA = SSP_CPHA_SECOND;
+	SSP_ConfigStruct.CPOL = SSP_CPOL_LO;
+	// Initialize SSP peripheral with parameter given in structure above
+	SSP_Init(MOTOR_SSP, &SSP_ConfigStruct);
+	// Enable SD_SSP peripheral
+	SSP_Cmd(MOTOR_SSP, ENABLE);
 }
 
 
