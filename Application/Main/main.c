@@ -53,7 +53,7 @@ void Test_Led(void)
 	static uint16_t cnt = 0;
 	uint8_t state = (cnt++ & 0x1000) ? 1 : 0;
 	
-	for (uint8_t i = 0; i < 6; i++)
+	for (uint8_t i = 0; i < ledSize; i++)
 	{
 		LED_Set(i, state);
 	}

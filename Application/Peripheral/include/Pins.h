@@ -20,8 +20,6 @@ typedef enum {
 	LED2 = P1_19,
 	LED3 = P1_20,
 	LED4 = P1_21,
-	LED5 = P4_14,
-	LED6 = P5_15,
 	
 	UART_ID = 0,
 	UART_TX_FUNC = 1,
