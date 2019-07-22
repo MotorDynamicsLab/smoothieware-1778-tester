@@ -7,9 +7,9 @@ TIM_MATCHCFG_Type TIM_MatchConfigStruct ;
 ///Timer Initialize
 void Timer_Init(void)
 {
-  // Initialize timer 0, prescale count time of 50uS
+  // Initialize timer 0, prescale count time of 10uS
 	TIM_ConfigStruct.PrescaleOption = TIM_PRESCALE_USVAL;
-	TIM_ConfigStruct.PrescaleValue  = 50;
+	TIM_ConfigStruct.PrescaleValue  = 10;
 
 	// use channel 0, MR0
 	TIM_MatchConfigStruct.MatchChannel = 0;
@@ -21,8 +21,8 @@ void Timer_Init(void)
 	TIM_MatchConfigStruct.StopOnMatch  = FALSE;
 	//Toggle MR0.0 pin if MR0 matches it
 	TIM_MatchConfigStruct.ExtMatchOutputType =TIM_EXTMATCH_TOGGLE;
-	// Set Match value, count value of 20000 (20000 * 50uS = 1000000us = 1s --> 1 Hz)
-	TIM_MatchConfigStruct.MatchValue   = 20000;
+	// Set Match value, count value of 100000 (100000 * 10uS = 1000000us = 1s --> 1 Hz)
+	TIM_MatchConfigStruct.MatchValue   = 100000;
 	
 	// Set configuration for Tim_config and Tim_MatchConfig
 	TIM_Init(LPC_TIM1, TIM_TIMER_MODE, &TIM_ConfigStruct);
@@ -42,8 +42,9 @@ void Timer_Init(void)
 ///Timer set freq hz
 void Timer_SetFreqHz(uint32_t freqHz)
 {
-	if (freqHz > 20000) freqHz = 20000;
-	uint32_t match = 20000 / freqHz;
+	freqHz *= 2;
+	if (freqHz > 100000) freqHz = 100000;
+	uint32_t match = 100000 / freqHz;
 	
 	TIM_MatchConfigStruct.MatchValue = match;
 	TIM_ConfigMatch(LPC_TIM1, &TIM_MatchConfigStruct);
