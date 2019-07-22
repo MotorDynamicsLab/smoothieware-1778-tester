@@ -18,7 +18,6 @@
 void InitOsc(void);                        // prototypes
 void InitPorts(void);
 void HTTPServer(void);
-void InsertDynamicValues(void);
 
 void Easy_Web_Init(void);
 void Easy_Web_Execute(void);

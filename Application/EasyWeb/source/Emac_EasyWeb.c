@@ -137,23 +137,31 @@ void Easy_Web_Execute(void)
  **********************************************************************/
 uint8_t EasyWeb_Read_WebPage(void)
 {
+	const char *pagename = "webpage.txt";
+
+	printf("Read file: %s\r\n", pagename);
+
 	if (SDCard_disk_initialize() == 0)
 	{
-		FATFS fat;
+		printf("SDCard_Initialize Sucessful!\r\n");
+
 		FIL file;
 
-		f_mount(0, &fat);
-		int r = f_open(&file, "index.html", FA_READ);
+		int r = f_open(&file, pagename, FA_READ);
+		
+		printf("res: %d\r\n", r);
+
 		if (r == FR_OK)
 		{
-			//get HTML length, ignore trailing zero
-			HTTPBytesToSend = file.fsize;
-			//malloc webside
-			PWebSide = (unsigned char *)malloc(file.fsize);
-			//read webside
+			printf("Read file %s! size: %d\r\n", pagename, file.fsize);
 			unsigned int r = file.fsize;
-			f_read(&file, PWebSide, file.fsize, &r);
+			memset(SDWebSide, 0, 2000);
+			f_read(&file, SDWebSide, file.fsize, &r);
 			f_close(&file);
+
+			//get HTML
+			HTTPBytesToSend = file.fsize;
+			PWebSide = (uint8_t*)SDWebSide;
 			return 1;
 		}
 	}
@@ -185,8 +193,8 @@ void HTTPServer(void)
       {                                          // if called the 1st time
 		  if (EasyWeb_Read_WebPage() == 0)
 		  {
-			  HTTPBytesToSend = sizeof(WebSide) - 1; // get HTML length, ignore trailing zero
-			  PWebSide = (uint8_t *)WebSide;         // pointer to HTML-code
+			  HTTPBytesToSend = sizeof(ROMWebSide) - 1; // get HTML length, ignore trailing zero
+			  PWebSide = (uint8_t *)ROMWebSide;         // pointer to HTML-code
 		  }
       }
 
@@ -207,14 +215,12 @@ void HTTPServer(void)
         }
 
         TCPTxDataCount = MAX_TCP_TX_DATA_SIZE;   // bytes to xfer
-        InsertDynamicValues();                   // exchange some strings...
         TCPTransmitTxBuffer();                   // xfer buffer
       }
       else if (HTTPBytesToSend)                  // transmit leftover bytes
       {
         memcpy(TCP_TX_BUF, PWebSide, HTTPBytesToSend);
         TCPTxDataCount = HTTPBytesToSend;        // bytes to xfer
-        InsertDynamicValues();                   // exchange some strings...
         TCPTransmitTxBuffer();                   // send last segment
         TCPClose();                              // and close connection
         HTTPBytesToSend = 0;                     // all data sent
@@ -227,47 +233,6 @@ void HTTPServer(void)
     HTTPStatus &= ~HTTP_SEND_PAGE;               // reset help-flag if not connected
 }
 
-
-// searches the TX-buffer for special strings and replaces them
-// with dynamic values (AD-converter results)
-/*********************************************************************//**
- * @brief       Insert Dynamic Value
- * @param[in]   None
- * @return      None
- **********************************************************************/
-void InsertDynamicValues(void)
-{
-    uint8_t *Key;
-    char NewKey[5];
-  unsigned int i;
-
-  if (TCPTxDataCount < 4) return;                     // there can't be any special string
-
-  Key = TCP_TX_BUF;
-
-  for (i = 0; i < (TCPTxDataCount - 3); i++)
-  {
-    if (*Key == 'A')
-     if (*(Key + 1) == 'D')
-       if (*(Key + 3) == '%')
-         switch (*(Key + 2))
-         {
-           case '7' :                                 // "AD7%"?
-           {
-             sprintf(NewKey, "%3u", 1024);            // insert AD converter value
-             memcpy(Key, NewKey, 3);                  // channel 7 (P6.7)
-             break;
-           }
-           case 'A' :                                 // "ADA%"?
-           {
-             sprintf(NewKey, "%3u", 1024);            // insert AD converter value
-             memcpy(Key, NewKey, 3);                  // channel 10 (temp.-diode)
-             break;
-           }
-         }
-    Key++;
-  }
-}
 
 /**
  * @}

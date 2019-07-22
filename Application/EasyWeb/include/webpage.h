@@ -1,7 +1,7 @@
 #ifndef __WEB_PAGE_H__
 #define __WEB_PAGE_H__
 
-const unsigned char WebSide[] = 
+const unsigned char ROMWebSide[] = 
 {
 	"<html>\r\n"
 	"<head>\r\n"
@@ -20,33 +20,11 @@ const unsigned char WebSide[] =
 	"<li><b>Embedded EMAC Ethernet Controller</b></li>\r\n"
 	"</ul>\r\n"
 	"\r\n"
-
-	"<p><b>A/D Converter Input 1:</b></p>\r\n"
-	"\r\n"
-	"<table bgcolor=\"#ff0000\" border=\"5\" cellpadding=\"0\" cellspacing=\"0\" width=\"500\">\r\n"
-	"<tr>\r\n"
-	"<td>\r\n"
-	"<table width=\"ADA%\" border=\"0\" cellpadding=\"0\" cellspacing=\"0\">\r\n"
-	"<tr><td bgcolor=\"#00ff00\">&nbsp;</td></tr> \r\n"
-	"</table>\r\n"
-	"</td>\r\n"
-	"</tr>\r\n"
-	"</table>\r\n"
-	"\r\n"
-	"<table border=\"0\" width=\"540\">\r\n"
-	"<tr>\r\n"
-	"<td width=\"12%\">0V</td>\r\n"
-	"<td width=\"12%\">0.5V</td>\r\n"
-	"<td width=\"12%\">1V</td>\r\n"
-	"<td width=\"12%\">1.5V</td>\r\n"
-	"<td width=\"12%\">2V</td>\r\n"
-	"<td width=\"12%\">2.5V</td>\r\n"
-	"<td width=\"12%\">3V</td>\r\n"
-	"</tr>\r\n"
-	"</table>\r\n"
 	"</body>\r\n"
 	"</html>\r\n"
 	"\r\n"
 };
+
+unsigned char SDWebSide[2000] = { 0 };
 
 #endif
