@@ -60,7 +60,7 @@ void Motor_Forward(void)
 {
 	for (uint8_t i = 0; i < motorSizes; i++)
 	{
-		GPIO_OutputValue(PORT(motorDir[i]), PINMask(motorDir[i]), 0);
+		GPIO_OutputValue(PORT(motorDir[i]), PINMask(motorDir[i]), 1);
 	}
 }
 
@@ -70,7 +70,7 @@ void Motor_Reverse(void)
 {
 	for (uint8_t i = 0; i < motorSizes; i++)
 	{
-		GPIO_OutputValue(PORT(motorDir[i]), PINMask(motorDir[i]), 1);
+		GPIO_OutputValue(PORT(motorDir[i]), PINMask(motorDir[i]), 0);
 	}
 }
 
