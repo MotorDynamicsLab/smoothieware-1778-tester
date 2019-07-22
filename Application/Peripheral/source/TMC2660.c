@@ -32,14 +32,10 @@ void TMC2660_Write(uint32_t datagram)
 		GPIO_OutputValue(PORT(tmc2660CS[i]), PINMask(tmc2660CS[i]), 0);
 		
 		uint8_t tbuf[3] = { (uint8_t)(datagram >> 16), (uint8_t)(datagram >> 8), (uint8_t)(datagram) };
-		uint8_t rbuf[3] = { 0 };
 
-		rbuf[0] = Motor_SPI_WriteAndRead(tbuf[0]);
-		rbuf[1] = Motor_SPI_WriteAndRead(tbuf[1]);
-		rbuf[2] = Motor_SPI_WriteAndRead(tbuf[2]);
-
-		uint32_t driverStatus = ((rbuf[0] << 16) | (rbuf[1] << 8) | (rbuf[2])) >> 4;
-		//printf("driver status : 0x%x\r\n", driverStatus);
+		Motor_SPI_WriteAndRead(tbuf[0]);
+		Motor_SPI_WriteAndRead(tbuf[1]);
+		Motor_SPI_WriteAndRead(tbuf[2]);
 		
 		GPIO_OutputValue(PORT(tmc2660CS[i]), PINMask(tmc2660CS[i]), 1);
 	}
