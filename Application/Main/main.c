@@ -43,18 +43,8 @@ void Test_SDCard_Ethernet(void)
 void Test_Motor(void)
 {
 	Motor_Enable();
-	
 	Motor_Forward();
 	Motor_Start();
-	TIM_Waitms(2000);
-	Motor_Stop();
-	TIM_Waitms(1000);
-	Motor_Reverse();
-	Motor_Start();
-	TIM_Waitms(2000);
-	Motor_Stop();
-	
-	Motor_Disable();
 }
 
 
@@ -86,9 +76,7 @@ int main(void)
 	
 	printf("Test Motor\r\n");
 	Motor_Init();
-	Motor_Enable();
-	Motor_Forward();
-	Motor_Start();
+	Test_Motor();
 
 	while(1)
 	{
