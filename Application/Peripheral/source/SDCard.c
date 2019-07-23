@@ -146,7 +146,7 @@ int SDCard_initialise_card()
 	// send CMD0, should return with all zeros except IDLE STATE set (bit 0)
 	if(SDCard__cmd(SDCMD_GO_IDLE_STATE, 0) != R1_IDLE_STATE)
 	{
-		printf("Could not put SD card in to SPI idle state\n");
+		printf("Could not put SD card in to SPI idle state\r\n");
 		return cardtype = SDCARD_FAIL;
 	}
 
@@ -162,7 +162,7 @@ int SDCard_initialise_card()
 	} 
 	else
 	{
-		printf("Not in idle state after sending CMD8 (not an SD card?)\n");
+		printf("Not in idle state after sending CMD8 (not an SD card?)\r\n");
 		return cardtype = SDCARD_FAIL;
 	}
 }
@@ -178,7 +178,7 @@ int SDCard_initialise_card_v1()
 		}
 	}
 
-	printf("Timeout waiting for v1.x card\n");
+	printf("Timeout waiting for v1.x card\r\n");
 	return SDCARD_FAIL;
 }
 
@@ -198,7 +198,7 @@ int SDCard_initialise_card_v2()
 		}
 	}
 
-	printf("Timeout waiting for v2.x card\n");
+	printf("Timeout waiting for v2.x card\r\n");
 	return cardtype = SDCARD_FAIL;
 }
 
@@ -215,7 +215,7 @@ int SDCard_disk_initialize()
 	// Set block length to 512 (CMD16)
 	if(SDCard__cmd(SDCMD_SET_BLOCKLEN, 512) != 0)
 	{
-		printf("Set 512-byte block timed out\n");
+		printf("Set 512-byte block timed out\r\n");
 		return 1;
 	}
 
@@ -237,7 +237,8 @@ int SDCard_disk_write(const uint8_t *buffer, uint32_t block_number)
 
 int SDCard_disk_read(uint8_t *buffer, uint32_t block_number)
 {
-// 	printf("SD:read type %d: %d(%x) -> %d(%x)\n", cardtype, block_number, block_number, BLOCK2ADDR(block_number), BLOCK2ADDR(block_number));
+ 	printf("SD:read type %d: %d(%x) -> %d(%x)\r\n", cardtype, block_number, block_number, BLOCK2ADDR(block_number), BLOCK2ADDR(block_number));
+
 	// set read address for single block (CMD17)
 	if(SDCard__cmd(SDCMD_READ_SINGLE_BLOCK, BLOCK2ADDR(block_number)) != 0)
 	{
@@ -287,13 +288,13 @@ int SDCard__cmd(int cmd, int arg)
 			SD_SPI_CS_SET();
 			SD_SPI_WriteAndRead(0xFF);
 			
-			printf(" <%u\n", response);
+			printf(" <%u\r\n", response);
 			
 			return response;
 		}
 	}
 	
-	printf("Timeout\n");
+	printf("Timeout\r\n");
 
 	SD_SPI_CS_SET();
 	SD_SPI_WriteAndRead(0xFF);
@@ -319,12 +320,12 @@ int SDCard__cmdx(int cmd, int arg)
 		int response = SD_SPI_WriteAndRead(0xFF);
 		if(!(response & 0x80))
 		{
- 			printf(" <%u\n", response);
+ 			printf(" <%u\r\n", response);
 			return response;
 		}
 	}
 	
-	printf("Timeout\n");
+	printf("Timeout\r\n");
 	SD_SPI_CS_SET();
 	SD_SPI_WriteAndRead(0xFF);
 	return -1; // timeout
@@ -355,7 +356,7 @@ int SDCard__cmd58(uint32_t *ocr)
 			*ocr |= SD_SPI_WriteAndRead(0xFF) << 8;
 			*ocr |= SD_SPI_WriteAndRead(0xFF) << 0;
 			
-			printf("OCR = 0x%08X\n", *ocr);
+			printf("OCR = 0x%08X\r\n", *ocr);
 			
 			SD_SPI_CS_SET();
 			SD_SPI_WriteAndRead(0xFF);
@@ -476,14 +477,14 @@ uint32_t SDCard__sd_sectors()
 	// CMD9, Response R2 (R1 byte + 16-byte block read)
 	if(SDCard__cmdx(SDCMD_SEND_CSD, 0) != 0)
 	{
-		fprintf(stderr, "Didn't get a response from the disk\n");
+		printf("Didn't get a response from the disk\r\n");
 		return 0;
 	}
 
 	uint8_t csd[16];
 	if(SDCard__read(csd, 16) != 0)
 	{
-		fprintf(stderr, "Couldn't read csd response from disk\n");
+		printf("Couldn't read csd response from disk\r\n");
 		return 0;
 	}
 
@@ -494,13 +495,13 @@ uint32_t SDCard__sd_sectors()
 
 	uint32_t csd_structure = ext_bits(csd, 127, 126);
 
-	printf("CSD_STRUCT = %d\n", csd_structure);
+	printf("CSD_STRUCT = %d\r\n", csd_structure);
 
 	if (csd_structure == 0)
 	{
 		if (cardtype == SDCARD_V2HC)
 		{
-			printf("SDHC card with regular SD descriptor!\n");
+			printf("SDHC card with regular SD descriptor!\r\n");
 			return 0;
 		}
 		uint32_t c_size = ext_bits(csd, 73, 62);
@@ -518,7 +519,7 @@ uint32_t SDCard__sd_sectors()
 	{
 		if (cardtype != SDCARD_V2HC)
 		{
-			printf("SD V1 or V2 card with SDHC descriptor!\n");
+			printf("SD V1 or V2 card with SDHC descriptor!\r\n");
 			return 0;
 		}
 		uint32_t c_size = ext_bits(csd, 69, 48);
@@ -528,7 +529,7 @@ uint32_t SDCard__sd_sectors()
 	}
 	else
 	{
-		printf("Invalid CSD %lu\n", csd_structure);
+		printf("Invalid CSD %lu\r\n", csd_structure);
 		return 0;
 	}
 }
