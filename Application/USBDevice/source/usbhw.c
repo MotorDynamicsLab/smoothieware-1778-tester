@@ -172,62 +172,25 @@ uint32_t RdCmdDat (uint32_t cmd) {
  */
 
 void USB_Init (void) {
-  /* if 1, use port 1 as device, if 0, use port2 as device. */
-#if  (USB_PORT == 1)
-#if (_CURR_USING_BRD == _IAR_OLIMEX_BOARD)
-  LPC_IOCON->P0_27 = 0x2;
-  LPC_IOCON->P0_28 = 0x2;
-#endif  
-
-  LPC_IOCON->P0_29 &= ~0x07;    /* P0.29 D1+, P0.30 D1- */
+	/* P0.29 D1+, P0.30 D1- */
+  LPC_IOCON->P0_29 &= ~0x07;    
   LPC_IOCON->P0_29 |= 0x1;
   LPC_IOCON->P0_30 &= ~0x07;
   LPC_IOCON->P0_30 |= 0x1;
 
-  LPC_IOCON->P2_9  &= ~0x07;    /* USB_SoftConnect */
+	/* USB_SoftConnect */
+  LPC_IOCON->P2_9  &= ~0x07;    
   LPC_IOCON->P2_9  |= 0x1;
 
-  LPC_IOCON->P1_30  &= ~0x07;   /* USB_VBUS */
-  LPC_IOCON->P1_30  |= 0x2;
-
-  LPC_IOCON->P1_18  &= ~0x07;   /* USB_LED */
-  LPC_IOCON->P1_18  |= 0x1;
-
-  LPC_SC->PCONP |= (1UL<<31);                /* USB PCLK -> enable USB Per.       */
-
-  LPC_USB->USBClkCtrl =  0x12|(1<<2);                 /* Dev, AHB clock enable */
+	/* USB PCLK -> enable USB Per. */
+  LPC_SC->PCONP |= (1UL<<31); 
+	
+	/* Dev, AHB clock enable */
+  LPC_USB->USBClkCtrl =  0x12|(1<<2); 
   while ((LPC_USB->USBClkSt & 0x12) != 0x12);
-#else
-  LPC_IOCON->P0_31 &= ~0x07;    /* P0.31 D2+, D2- is dedicated pin.  */
-  LPC_IOCON->P0_31 |= 0x1;
 
-  LPC_IOCON->P0_14  &= ~0x07;    /* USB_SoftConnect */
-  LPC_IOCON->P0_14  |= 0x3;
-
-  LPC_IOCON->P1_30  &= ~0x07;   /* USB_VBUS */
-  LPC_IOCON->P1_30  |= 0x2;
-
-  LPC_IOCON->P0_13  &= ~0x07;   /* USB_LED */
-  LPC_IOCON->P0_13  |= 0x1;
-
-   LPC_SC->PCONP |= (1UL<<31);                /* USB PCLK -> enable USB Per.       */
-
-  LPC_USB->USBClkCtrl = 0x1A;                /* Dev, OTG, AHB clock enable */
-  while ((LPC_USB->USBClkSt & 0x1A) != 0x1A);
-
-  /* Port Select register when USB device is configured. */
-  LPC_USB->StCtrl = 0x3;
-
-  LPC_USB->USBClkCtrl = 0x12;                /* Disable OTG clock */
-  while ((LPC_USB->USBClkSt & 0x12) != 0x12);
-#endif
-
-  NVIC_EnableIRQ(USB_IRQn);               /* enable USB interrupt */
-
-#if (_CURR_USING_BRD == _IAR_OLIMEX_BOARD)
-  LPC_USB->I2C_CTL |= (1<<8);
-  while(LPC_USB->I2C_CTL & (1<<8));
-#endif
+	/* enable USB interrupt */
+  NVIC_EnableIRQ(USB_IRQn);     
 
   USB_Reset();
   USB_SetAddress(0);
@@ -243,13 +206,6 @@ void USB_Init (void) {
 
 void USB_Connect (uint32_t con) {
   WrCmdDat(CMD_SET_DEV_STAT, DAT_WR_BYTE(con ? DEV_CON : 0));
-  #if (_CURR_USING_BRD == _IAR_OLIMEX_BOARD)
-  LPC_USB->I2C_STS |= (1<<0);
-  LPC_USB->I2C_TX = 0x15A;             // Send ISP1301 address, R/W=0
-  LPC_USB->I2C_TX = 0x006;  // Send OTG Control (Clear/Set) register address
-  LPC_USB->I2C_TX = 0x201;             // Set DP_PULLUP bit, send STOP condition
-  while(!LPC_USB->I2C_STS &(1<<0));
-#endif
 }
 
 

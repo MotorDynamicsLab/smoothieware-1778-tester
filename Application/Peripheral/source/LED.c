@@ -1,7 +1,6 @@
 #include "LED.h"
 #include "Pins.h"
 #include "lpc177x_8x_gpio.h"
-#include "stdio.h"
 
 PinName ledPins[] = { LED1, LED2, LED3, LED4 };
 uint8_t ledSize = sizeof(ledPins) / sizeof(ledPins[0]);

@@ -31,83 +31,6 @@
 #include "mscuser.h"
 
 #include "memory.h"
-//#include "lpc177x_8x_nvic.h"
-
-/* Example group ----------------------------------------------------------- */
-/** @defgroup USBDEV_USBMassStorage USB Mass Storage Device
- * @ingroup USBDEV_Examples
- * @{
- */
-
-/** @defgroup USBDEV_MscUsbHw   USB-MSD USB Hardware
- * @ingroup USBDEV_USBMassStorage
- * @{
- */
-
-/**
- * @}
- */
-
-
-/** @defgroup USBDEV_MscUsbCore USB-MSD USB Core
- * @ingroup USBDEV_USBMassStorage
- * @{
- */
-
-/**
- * @}
- */
-
-/** @defgroup USBDEV_MscUsbDesc USB-MSD USB Descriptors
- * @ingroup USBDEV_USBMassStorage
- * @{
- */
-
-/**
- * @}
- */
-
-
-/** @defgroup USBDEV_MscUsbReg  USB-MSD USB Register
- * @ingroup USBDEV_USBMassStorage
- * @{
- */
-
-/**
- * @}
- */
-
-
-/** @defgroup USBDEV_MscUsbUser USB-MSD USB User
- * @ingroup USBDEV_USBMassStorage
- * @{
- */
-
-/**
- * @}
- */
-
-
-/** @defgroup USBDEV_MscUsbCfg  USB-MSD USB Configuration
- * @ingroup USBDEV_USBMassStorage
- * @{
- */
-
-/**
- * @}
- */
-
-
-/** @defgroup USBDEV_MscConf    USB-MSD MSC Configuration
- * @ingroup USBDEV_USBMassStorage
- * @{
- */
-
-/**
- * @}
- */
-
-
 
 extern uint8_t Memory[MSC_MemorySize];         /* MSC Memory in RAM */
 
@@ -119,7 +42,7 @@ void USB_Message_Connect(void)
     uint32_t n;
 
     for (n = 0; n < MSC_ImageSize; n++) {     /* Copy Initial Disk Image */
-        Memory[n] = DiskImage[n];               /*   from Flash to RAM     */
+        Memory[n] = DiskImage[n];             /*   from Flash to RAM     */
     }
 
     USB_Init();                               /* USB Initialization */
