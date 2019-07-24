@@ -1,0 +1,1 @@
+copy /y Output\tmp\ER_IROM1 firmware.bin
