@@ -5,11 +5,11 @@
 #include "SDCard.h"
 #include "memory.h"
 #include "easyweb.h"
-#include "lpc177x_8x_timer.h"
 #include "system_LPC177x_8x.h"
 
 FATFS fat;
 
+///Fatfs get_fattime
 DWORD get_fattime(void)
 {
 	const DWORD	YEAR = 2019;
@@ -27,19 +27,19 @@ DWORD get_fattime(void)
 }
 
 
+///Test sdcard and ethernet
 void Test_SDCard_Ethernet(void)
 {	
-	//Test sd card
 	if (SDCard_disk_initialize() == 0)
 	{
 		f_mount(0, &fat);
 	}
-
-	//Test Ethernet 
+	
 	Easy_Web_Init();
 }
 
 
+///Test motor
 void Test_Motor(void)
 {
 	Motor_Enable();
@@ -48,6 +48,7 @@ void Test_Motor(void)
 }
 
 
+///Test led
 void Test_Led(void)
 {
 	static uint16_t cnt = 0;
@@ -60,6 +61,7 @@ void Test_Led(void)
 }
 
 
+///Program entry
 int main(void)
 {
 	Uart_Init();
