@@ -21,6 +21,16 @@ typedef enum {
 	LED3 = P1_20,
 	LED4 = P1_21,
 	
+	FAN1 = P2_4,
+	FAN2 = P2_6,
+	FAN3 = P1_22,
+	FAN4 = P3_26,
+	
+	HEAT1 = P2_7,
+	HEAT2 = P2_5,
+	BED_HEAT = P1_23,
+	AC_FAULT = P3_25,
+	
 	UART_ID = 0,
 	UART_TX_FUNC = 1,
 	UART_RX_FUNC = 1,
