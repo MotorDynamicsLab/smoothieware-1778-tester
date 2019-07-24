@@ -429,11 +429,6 @@
           <GroupName>Driver</GroupName>
           <Files>
             <File>
-              <FileName>debug_frmwrk.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>.\BSPSupport\Drivers\source\debug_frmwrk.c</FilePath>
-            </File>
-            <File>
               <FileName>lpc177x_8x_adc.c</FileName>
               <FileType>1</FileType>
               <FilePath>.\BSPSupport\Drivers\source\lpc177x_8x_adc.c</FilePath>
