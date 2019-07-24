@@ -1,0 +1,16 @@
+<html>
+    <head>
+        <meta http-equiv="refresh" content="5">
+        <title>Pulse Controller Tester</title>
+    </head>
+    <body bgcolor="#87CEFA" text="#2F4F4F">
+        <p><b><font color="#2F4F4F" size="6"><i>Web page on SD card</i></font></b></p>
+        <p><b>This is a tester website hosted by the embedded Webserver</b> <b>Pulse Controller Tester</b></p>
+        <p><b>Hardware:</b></p>
+        <ul>
+            <li><b>Current Board: LPC1778 Pulse Controller</b></li>
+            <li><b>Using IC: LPC1778 (ARM Cortex-M3) with 120Mhz, 512KB Flash, 96 KB SRAM</b></li>
+            <li><b>Embedded EMAC Ethernet Controller</b></li>
+        </ul>
+    </body>
+</html>

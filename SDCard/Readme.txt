@@ -1,0 +1,1 @@
+Put webpage.txt in the sdcard root directory
