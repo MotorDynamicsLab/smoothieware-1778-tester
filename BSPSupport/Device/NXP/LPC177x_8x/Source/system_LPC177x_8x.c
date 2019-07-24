@@ -522,7 +522,7 @@ void SystemInit (void)
 #ifdef  __RAM_MODE__
   SCB->VTOR  = 0x10000000 & 0x3FFFFF80;
 #else
-  SCB->VTOR  = 0x00000000 & 0x3FFFFF80;
+  SCB->VTOR  = 0x00004000 & 0x3FFFFF80;
 #endif
   SystemCoreClockUpdate(); 
 }
